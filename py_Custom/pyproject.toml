@@ -1,0 +1,28 @@
+[project]
+name = "py-custom"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { email = "angelo.miculescu1999@gmail.com" }
+]
+requires-python = ">=3.11"
+dependencies = [
+    "faiss-cpu>=1.15.0",
+    "numpy>=2.4.6",
+    "openai>=3.3.1",
+    "pandas>=3.0.5",
+    "pydantic>=2.13.4",
+    "pymupdf>=1.28.2",
+    "python-dotenv>=1.2.3",
+    "rank-bm25>=0.2.2",
+    "sentence-transformers>=6.0.0",
+    "tqdm>=4.70.0",
+]
+
+[project.scripts]
+py-custom = "py_custom:main"
+
+[build-system]
+requires = ["uv_build>=0.12.5,<0.13.0"]
+build-backend = "uv_build"
