@@ -22,31 +22,6 @@ The purpose is to understand and demonstrate the layers abstracted by Microsoft 
 
 ---
 
-## What This Implementation Does
-
-The initial corpus consists of narrative ECB and CBI PDF releases, including:
-
-- ECB monetary-policy decision statements.
-- CBI Retail Interest Rates releases.
-- CBI Bank Lending Survey commentary.
-- CBI Money and Banking Statistics releases.
-
-The system is designed to answer questions such as:
-
-```text
-What was the ECB's latest monetary-policy decision?
-
-What was the latest new fixed-rate mortgage rate in Ireland?
-
-Did Irish banks tighten mortgage credit standards in Q2 2026?
-
-What did the latest CBI data show about household deposits?
-```
-
-It first retrieves relevant passages from local files. It then sends the question and only the retrieved passages to an Azure-hosted language model with instructions to cite sources and avoid unsupported claims.
-
----
-
 ## Architecture
 
 ```text
@@ -108,7 +83,7 @@ py_custom/
 │   ├── retrieve.py                  # Hybrid search and RRF
 │   └── generate.py                  # Grounded LLM answer generation
 │
-├── eval/
+├── tests/
 │   ├── retrieval_baseline.md
 │   └── generation_baseline.md
 │
@@ -350,7 +325,7 @@ It retrieves candidate chunks from both indexes, then combines the rankings usin
 
 RRF combines rank positions rather than comparing raw FAISS and BM25 scores directly, because those scores have different meanings and scales.
 
-Try the baseline retrieval tests:
+Try the baseline retrieval/generation tests:
 
 ```bash
 uv run python -m src.retrieve \
@@ -370,7 +345,7 @@ uv run python -m src.retrieve \
 Record the results in:
 
 ```text
-eval/retrieval_baseline.md
+tests/retrieval_baseline.md
 ```
 
 ---
@@ -392,31 +367,13 @@ uv run python -m src.generate \
 4. Instructs the model to rely only on supplied evidence.
 5. Requires citations in this format:
 
-```text
-[document_id, p. page_number]
-```
-
-Example:
-
-```text
-The Governing Council kept the three key ECB interest rates unchanged
-[ecb_2026-07-23_decision-statement, p. 1].
-```
-
-A good answer is not merely fluent. It must:
-
-- Answer the question using retrieved evidence.
-- Cite each material factual claim.
-- Avoid external facts not present in the context.
-- Clearly say when the evidence is insufficient.
-- Avoid personalised financial advice, lending decisions, or institution-specific forecasts.
 
 > Some deployed Foundry models do not accept a custom `temperature` value. The current implementation omits this parameter for compatibility. Grounding comes from retrieval, context restrictions, source citations, and evaluation—not from a sampling setting alone.
 
 Record outputs in:
 
 ```text
-eval/generation_baseline.md
+tests/generation_baseline.md
 ```
 
 ---
@@ -453,14 +410,3 @@ For each response, assess:
 - The system does not yet include a reranker, metadata filters, query rewriting, automated citation validation, or automated evaluation metrics.
 - CSV/XLSX calculation support is not included in this initial custom RAG phase. It will be added as a separate structured-data tool rather than forcing raw tables into text retrieval.
 - Azure is still required for answer generation in the current version, although ingestion, indexing, and retrieval run locally.
-
----
-
-## Related Documentation
-
-- [Repository overview](../README.md)
-- [Azure / Foundry IQ implementation](../py_azure/README.md)
-- [PyMuPDF text extraction](https://pymupdf.readthedocs.io/en/latest/recipes-text.html)
-- [Sentence Transformers](https://www.sbert.net/)
-- [FAISS](https://faiss.ai/)
-- [Azure OpenAI chat completions](https://learn.microsoft.com/en-us/azure/foundry/openai/how-to/chatgpt)

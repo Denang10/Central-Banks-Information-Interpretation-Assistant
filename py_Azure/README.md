@@ -12,16 +12,7 @@ The purpose of this implementation is to demonstrate a cloud-native RAG solution
 
 ## What This Implementation Does
 
-The agent answers research-style questions about:
-
-- ECB monetary-policy decisions and key interest rates.
-- Irish retail mortgage, consumer-loan, business-loan, and deposit rates.
-- Household, SME, and business lending/deposit statistics.
-- Mortgage arrears and restructures.
-- Bank Lending Survey results, including credit standards and credit demand.
-- Money and banking statistics.
-
-It uses two complementary tools:
+The agent answers research-style questions using two complementary tools:
 
 | Tool | Purpose | Suitable data |
 |---|---|---|
@@ -122,32 +113,20 @@ If the retrieved sources do not support the answer, say so clearly.
 
 ### 2. Create or connect Azure resources
 
-Create an Azure Storage account and an Azure Blob Storage container. A simple container layout is:
+1. Create an Azure Storage account and an Azure Blob Storage container.
 
-```text
-central-bank-documents/
-├── narrative/
-│   ├── ecb/
-│   ├── cbi/
-│   └── methodology/
-└── structured/
-    ├── retail_interest_rates/
-    ├── credit_and_deposits/
-    └── mortgage_arrears/
-```
+2. Upload the narrative source documents first. This keeps retrieval focused while the knowledge base is being tested.
 
-Upload the narrative source documents first. This keeps retrieval focused while the knowledge base is being tested.
+3. Recommended initial narrative corpus:
 
-Recommended initial narrative corpus:
+        - ECB monetary-policy decision statements.
+        - CBI Retail Interest Rates release.
+        - CBI Bank Lending Survey release.
+        - CBI Money and Banking Statistics release.
+        - CBI methodology notes for private-sector credit/deposits.
+        - CBI methodology notes for mortgage arrears and repossessions.
 
-- ECB monetary-policy decision statements.
-- CBI Retail Interest Rates release.
-- CBI Bank Lending Survey release.
-- CBI Money and Banking Statistics release.
-- CBI methodology notes for private-sector credit/deposits.
-- CBI methodology notes for mortgage arrears and repossessions.
-
-![Azure Blob Storage container and uploaded source documents](image.png)
+![Azure Blob Storage container and uploaded source documents](assets/image.png)
 
 ### 3. Create a Foundry IQ knowledge base
 
@@ -162,24 +141,11 @@ Then:
 5. Configure retrieval and answer instructions.
 6. Connect the knowledge base to the agent.
 
-Foundry IQ uses Azure AI Search as its retrieval infrastructure. It can ingest indexed data sources and handle chunking, vectorisation, metadata extraction, and indexing automatically. [Microsoft documentation](https://learn.microsoft.com/en-us/azure/foundry/agents/concepts/what-is-foundry-iq)
-
-Suggested knowledge-base description:
-
-```text
-Official European Central Bank and Central Bank of Ireland publications for
-questions about monetary-policy decisions, key policy rates, Irish mortgage
-and deposit rates, household and business credit, lending conditions,
-mortgage arrears, and money and banking statistics.
-```
-
-![Foundry IQ knowledge base configuration](image-2.png)
+![Foundry IQ knowledge base configuration](assets/image-2.png)
 
 ### 4. Configure secure access
 
-Foundry IQ connects the agent to the knowledge base through Azure AI Search. In a production-style setup, use managed identity and least-privilege role assignments rather than embedding storage or search secrets in application code.
-
-The Foundry project identity typically requires permission to read the relevant Azure AI Search index. If using managed identity to access Blob Storage, it also needs the appropriate Blob data-access role. Refer to Microsoft’s guidance for the exact roles required by your configuration. [Microsoft documentation](https://learn.microsoft.com/en-us/azure/foundry/agents/how-to/foundry-iq-connect)
+Foundry IQ connects the agent to the knowledge base through Azure AI Search. For the purposes of this demo, this was accomplished through the use of api_keys belonging to the AI Search artifact. Production settings may require managed identity roles to be configured instead.
 
 ### 5. Connect tools and test in the playground
 
@@ -187,7 +153,7 @@ Attach the Foundry IQ knowledge base to the agent. Add other tools only where th
 
 Use the Foundry playground to test retrieval quality, citations, and refusal behaviour before writing any client code.
 
-![Foundry playground with the connected agent and tools](image-1.png)
+![Foundry playground with the connected agent and tools](assets/image-1.png)
 
 Suggested initial tests:
 
